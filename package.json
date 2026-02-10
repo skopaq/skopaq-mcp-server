@@ -1,7 +1,7 @@
 {
   "name": "argus-mcp-server",
   "version": "1.4.0",
-  "description": "Argus E2E Testing Agent - MCP Server for AI IDEs (Claude Code, Cursor, Windsurf, VS Code)",
+  "description": "Skopaq E2E Testing Agent - MCP Server for AI IDEs (Claude Code, Cursor, Windsurf, VS Code)",
   "main": "src/index.ts",
   "scripts": {
     "dev": "wrangler dev",

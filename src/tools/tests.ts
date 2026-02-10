@@ -1,5 +1,5 @@
 /**
- * Test CRUD tools for Argus MCP Server.
+ * Test CRUD tools for Skopaq MCP Server.
  *
  * Provides tools for managing tests (list, get, create, update, delete).
  * These cover the primary /api/v1/tests endpoints.

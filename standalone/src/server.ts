@@ -1,9 +1,9 @@
 /**
- * Argus MCP Server - Standalone Node.js Version
+ * Skopaq MCP Server - Standalone Node.js Version
  *
  * This server provides MCP (Model Context Protocol) capabilities for
  * self-hosted and air-gap deployments. It proxies tool requests to
- * the Argus Brain API while handling screenshots locally via MinIO.
+ * the Skopaq Brain API while handling screenshots locally via MinIO.
  *
  * RAP-295: Air-Gap Foundation - MCP Server Docker Image
  */
@@ -39,7 +39,7 @@ const sessions =
 const TOOLS = [
   {
     name: "argus_health",
-    description: "Check Argus API health status",
+    description: "Check Skopaq API health status",
     inputSchema: {
       type: "object" as const,
       properties: {},
@@ -336,17 +336,17 @@ async function startServer(): Promise<void> {
   // Root endpoint - server info
   app.get("/", (_req: Request, res: Response) => {
     res.json({
-      name: "Argus MCP Server (Standalone)",
+      name: "Skopaq MCP Server (Standalone)",
       version: "1.0.0",
       description:
-        "Model Context Protocol server for Argus E2E Testing - Self-hosted version",
+        "Model Context Protocol server for Skopaq E2E Testing - Self-hosted version",
       endpoints: {
         sse: "/sse",
         health: "/health",
         screenshots: "/screenshot/:key",
       },
       tools: TOOLS.map((t) => t.name),
-      documentation: "https://docs.heyargus.ai/self-hosted",
+      documentation: "https://docs.skopaq.ai/self-hosted",
     });
   });
 
@@ -417,7 +417,7 @@ async function startServer(): Promise<void> {
     console.log(`
 ╔═══════════════════════════════════════════════════════════╗
 ║                                                           ║
-║   Argus MCP Server (Standalone)                          ║
+║   Skopaq MCP Server (Standalone)                          ║
 ║   Self-hosted / Air-Gap Deployment                       ║
 ║                                                           ║
 ║   Server running at: http://${config.HOST}:${config.PORT}          ║

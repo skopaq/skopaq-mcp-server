@@ -8,8 +8,8 @@ declare namespace Cloudflare {
 	}
 	interface Env {
 		ENVIRONMENT: "production";
-		ARGUS_API_URL: "https://argus-api.samuelvinay-kumar.workers.dev";
-		ARGUS_BRAIN_URL: "https://argus-brain-production.up.railway.app";
+		ARGUS_API_URL: "https://skopaq-api.samuelvinay-kumar.workers.dev";
+		ARGUS_BRAIN_URL: "https://skopaq-brain-production.up.railway.app";
 		MCP_OAUTH: DurableObjectNamespace<import("./src/index").MCPOAuth>;
 		AI: Ai;
 	}

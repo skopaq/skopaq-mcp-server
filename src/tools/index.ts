@@ -9,7 +9,7 @@
  * the pattern in tests.ts, reports.ts, etc. Over time, existing inline tools
  * can be migrated here incrementally without breaking changes.
  *
- * Usage from ArgusMcpAgentSQLite.init():
+ * Usage from SkopaqMcpAgentSQLite.init():
  *   import { registerAllModularTools } from "./tools/index.js";
  *   registerAllModularTools(this.server, this as AgentContext);
  */
@@ -25,7 +25,7 @@ import type { AgentContext } from "./types.js";
 
 /**
  * Register all modular tools with the MCP server.
- * Called from ArgusMcpAgentSQLite.init() after inline tool registration.
+ * Called from SkopaqMcpAgentSQLite.init() after inline tool registration.
  */
 export function registerAllModularTools(
   server: McpServer,
@@ -48,5 +48,5 @@ export function registerAllModularTools(
   // registerInsights(server, agent);
   // registerSast(server, agent);
 
-  console.log("[Argus MCP] Modular tool registration ready (tools extracted incrementally)");
+  console.log("[Skopaq MCP] Modular tool registration ready (tools extracted incrementally)");
 }

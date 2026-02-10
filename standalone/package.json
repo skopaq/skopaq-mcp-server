@@ -1,7 +1,7 @@
 {
   "name": "argus-mcp-server-standalone",
   "version": "1.0.0",
-  "description": "Argus MCP Server - Standalone Node.js version for self-hosted/air-gap deployments",
+  "description": "Skopaq MCP Server - Standalone Node.js version for self-hosted/air-gap deployments",
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",

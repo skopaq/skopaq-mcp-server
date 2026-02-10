@@ -1,5 +1,5 @@
 /**
- * Shared types and interfaces for Argus MCP tool modules.
+ * Shared types and interfaces for Skopaq MCP tool modules.
  *
  * Each tool module exports a `register(server, agent)` function
  * that registers tools with the MCP server.

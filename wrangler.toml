@@ -1,8 +1,8 @@
-# Argus MCP Server - Model Context Protocol for AI IDEs
-# https://heyargus.ai
+# Skopaq MCP Server - Model Context Protocol for AI IDEs
+# https://skopaq.ai
 #
 # This MCP server allows AI coding assistants (Claude Code, Cursor, Windsurf)
-# to interact with Argus E2E testing capabilities directly.
+# to interact with Skopaq E2E testing capabilities directly.
 #
 # Deploy with: npm run deploy
 
@@ -27,12 +27,12 @@ ENVIRONMENT = "production"
 # Note: Using nip.io domain because Cloudflare Workers can't fetch raw IPs (error 1003)
 BROWSER_POOL_URL = "http://65.20.72.251.nip.io"
 # Worker URL - Fallback browser automation (Cloudflare Browser Rendering)
-ARGUS_API_URL = "https://argus-api.samuelvinay-kumar.workers.dev"
+ARGUS_API_URL = "https://skopaq-api.samuelvinay-kumar.workers.dev"
 # Brain URL - Intelligence (test planning, quality, webhooks)
-ARGUS_BRAIN_URL = "https://argus-brain-production.up.railway.app"
+ARGUS_BRAIN_URL = "https://skopaq-brain-production.up.railway.app"
 
 # Secrets (set via `wrangler secret put <NAME>`):
-# - API_TOKEN (for authenticating with Argus API)
+# - API_TOKEN (for authenticating with Skopaq API)
 # - BROWSER_POOL_JWT_SECRET (production - JWT signing for browser pool)
 # - BROWSER_POOL_API_KEY (deprecated - legacy API key, use JWT instead)
 # - ANTHROPIC_API_KEY (optional, for enhanced AI analysis)
@@ -63,7 +63,7 @@ class_name = "MCPOAuth"
 # Durable Object for MCP Agent (manages per-connection state with SQLite)
 [[durable_objects.bindings]]
 name = "MCP_OBJECT"
-class_name = "ArgusMcpAgentSQLite"
+class_name = "SkopaqMcpAgentSQLite"
 
 [[migrations]]
 tag = "v1"
@@ -80,12 +80,12 @@ tag = "v4"
 
 [[migrations]]
 tag = "v5"
-deleted_classes = ["ArgusMcpAgentDO"]
+deleted_classes = ["SkopaqMcpAgentDO"]
 
 [[migrations]]
 tag = "v6"
-deleted_classes = ["ArgusMcpAgent"]
+deleted_classes = ["SkopaqMcpAgent"]
 
 [[migrations]]
 tag = "v7"
-new_sqlite_classes = ["ArgusMcpAgentSQLite"]
+new_sqlite_classes = ["SkopaqMcpAgentSQLite"]

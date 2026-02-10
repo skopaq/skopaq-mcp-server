@@ -1,8 +1,8 @@
 /**
- * Argus MCP Server - Model Context Protocol for AI IDEs
- * https://heyargus.ai
+ * Skopaq MCP Server - Model Context Protocol for AI IDEs
+ * https://skopaq.ai
  *
- * This MCP server exposes Argus E2E testing capabilities to AI coding assistants:
+ * This MCP server exposes Skopaq E2E testing capabilities to AI coding assistants:
  * - Claude Code
  * - Cursor
  * - Windsurf
@@ -14,7 +14,7 @@
  * - argus_act: Execute browser actions
  * - argus_extract: Extract data from pages
  * - argus_agent: Autonomous task completion
- * - argus_health: Check Argus API status
+ * - argus_health: Check Skopaq API status
  */
 
 import { McpAgent } from "agents/mcp";
@@ -1298,8 +1298,8 @@ interface VisualAnalyzeResponse {
   error?: string;
 }
 
-// Argus API Response types
-interface ArgusActResponse {
+// Skopaq API Response types
+interface SkopaqActResponse {
   success: boolean;
   message?: string;
   actions?: Array<{
@@ -1312,7 +1312,7 @@ interface ArgusActResponse {
   error?: string;
 }
 
-interface ArgusTestResponse {
+interface SkopaqTestResponse {
   success: boolean;
   steps?: Array<{
     instruction: string;
@@ -1325,7 +1325,7 @@ interface ArgusTestResponse {
   error?: string;
 }
 
-interface ArgusObserveResponse {
+interface SkopaqObserveResponse {
   success?: boolean;  // Optional - Cloudflare fallback doesn't include this
   actions?: Array<{
     description: string;
@@ -1345,13 +1345,13 @@ interface ArgusObserveResponse {
   _backend?: string;   // Cloudflare includes this
 }
 
-interface ArgusExtractResponse {
+interface SkopaqExtractResponse {
   success: boolean;
   data?: Record<string, unknown>;
   error?: string;
 }
 
-interface ArgusAgentResponse {
+interface SkopaqAgentResponse {
   success: boolean;
   completed: boolean;
   message?: string;
@@ -1393,7 +1393,7 @@ async function callWorkerAPI<T>(
   // Primary: Vultr VKE Browser Pool (if configured)
   const poolUrl = env.BROWSER_POOL_URL;
   // Fallback: Cloudflare Browser Rendering
-  const fallbackUrl = env.ARGUS_API_URL || "https://argus-api.samuelvinay-kumar.workers.dev";
+  const fallbackUrl = env.ARGUS_API_URL || "https://skopaq-api.samuelvinay-kumar.workers.dev";
 
   // Try Browser Pool first if configured
   if (poolUrl) {
@@ -1448,7 +1448,7 @@ async function callWorkerAPI<T>(
     console.log(`[DEBUG] No BROWSER_POOL_URL configured, using fallback`);
   }
 
-  // Fallback headers (for Cloudflare/Argus API)
+  // Fallback headers (for Cloudflare/Skopaq API)
   const fallbackHeaders: Record<string, string> = {
     "Content-Type": "application/json",
   };
@@ -1480,7 +1480,7 @@ async function callBrainAPI<T>(
   accessToken?: string,
   maxRetries: number = 3,
 ): Promise<T> {
-  const brainUrl = env?.ARGUS_BRAIN_URL || "https://argus-brain-production.up.railway.app";
+  const brainUrl = env?.ARGUS_BRAIN_URL || "https://skopaq-brain-production.up.railway.app";
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -1534,7 +1534,7 @@ async function registerMCPConnection(
   clientName?: string
 ): Promise<string | null> {
   try {
-    const brainUrl = env?.ARGUS_BRAIN_URL || "https://argus-brain-production.up.railway.app";
+    const brainUrl = env?.ARGUS_BRAIN_URL || "https://skopaq-brain-production.up.railway.app";
     const response = await fetch(`${brainUrl}/api/v1/mcp/connections/register`, {
       method: 'POST',
       headers: {
@@ -1563,7 +1563,7 @@ async function registerMCPConnection(
 }
 
 // Alias for backward compatibility
-const callArgusAPI = callWorkerAPI;
+const callSkopaqAPI = callWorkerAPI;
 
 // Helper to record MCP activity after tool executions
 async function recordMCPActivity(
@@ -1619,10 +1619,10 @@ interface EnvWithKV extends Env {
   AUTH_STATE?: KVNamespace;
 }
 
-// Create MCP Server with Argus tools
-export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
+// Create MCP Server with Skopaq tools
+export class SkopaqMcpAgentSQLite extends McpAgent<EnvWithKV> {
   server = new McpServer({
-    name: "Argus E2E Testing Agent",
+    name: "Skopaq E2E Testing Agent",
     version: "1.0.0",
   });
 
@@ -1752,7 +1752,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
       return {
         content: [{
           type: "text" as const,
-          text: `## Authentication Required\n\nPlease run \`argus_auth\` first to sign in to Argus.\n\n**Steps:**\n1. Run \`argus_auth\` to get a verification code\n2. Open the URL and sign in\n3. Run \`argus_auth_complete\` to finish authentication`,
+          text: `## Authentication Required\n\nPlease run \`argus_auth\` first to sign in to Skopaq.\n\n**Steps:**\n1. Run \`argus_auth\` to get a verification code\n2. Open the URL and sign in\n3. Run \`argus_auth_complete\` to finish authentication`,
         }],
         isError: true,
       };
@@ -1785,7 +1785,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
     return {
       content: [{
         type: "text" as const,
-        text: `## Authentication Required\n\nPlease run \`argus_auth\` first to sign in to Argus.\n\n**Steps:**\n1. Run \`argus_auth\` to get a verification code\n2. Open the URL and sign in\n3. Run \`argus_auth_complete\` to finish authentication`,
+        text: `## Authentication Required\n\nPlease run \`argus_auth\` first to sign in to Skopaq.\n\n**Steps:**\n1. Run \`argus_auth\` to get a verification code\n2. Open the URL and sign in\n3. Run \`argus_auth_complete\` to finish authentication`,
       }],
       isError: true,
     };
@@ -1799,13 +1799,13 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
     // Tool: argus_auth - Start authentication flow
     this.server.tool(
       "argus_auth",
-      "Authenticate with Argus to access protected features like projects, quality intelligence, and team collaboration. Opens a browser for secure sign-in.",
+      "Authenticate with Skopaq to access protected features like projects, quality intelligence, and team collaboration. Opens a browser for secure sign-in.",
       {},
       async () => {
         try {
           // Call Brain API to start device auth flow (uses form-urlencoded)
           const response = await fetch(
-            `${this.env.ARGUS_BRAIN_URL || "https://argus-brain-production.up.railway.app"}/api/v1/auth/device/authorize`,
+            `${this.env.ARGUS_BRAIN_URL || "https://skopaq-brain-production.up.railway.app"}/api/v1/auth/device/authorize`,
             {
               method: "POST",
               headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -1848,7 +1848,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
           return {
             content: [{
               type: "text" as const,
-              text: `## Argus Authentication\n\n**Your verification code:** \`${data.user_code}\`\n\n**Steps to sign in:**\n1. Open this URL in your browser:\n   ${data.verification_uri_complete}\n\n2. Sign in with your Argus account\n\n3. Enter the code if prompted: \`${data.user_code}\`\n\n4. After signing in, run \`argus_auth_complete\` to finish\n\n*Code expires in ${Math.floor(data.expires_in / 60)} minutes*`,
+              text: `## Skopaq Authentication\n\n**Your verification code:** \`${data.user_code}\`\n\n**Steps to sign in:**\n1. Open this URL in your browser:\n   ${data.verification_uri_complete}\n\n2. Sign in with your Skopaq account\n\n3. Enter the code if prompted: \`${data.user_code}\`\n\n4. After signing in, run \`argus_auth_complete\` to finish\n\n*Code expires in ${Math.floor(data.expires_in / 60)} minutes*`,
             }],
           };
         } catch (error) {
@@ -1866,7 +1866,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
     // Tool: argus_auth_complete - Complete authentication flow
     this.server.tool(
       "argus_auth_complete",
-      "Complete the authentication flow after signing in via browser. Call this after you've entered the code on the Argus website.",
+      "Complete the authentication flow after signing in via browser. Call this after you've entered the code on the Skopaq website.",
       {},
       async () => {
         try {
@@ -1909,7 +1909,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
 
           // Poll the token endpoint (uses form-urlencoded)
           const response = await fetch(
-            `${this.env.ARGUS_BRAIN_URL || "https://argus-brain-production.up.railway.app"}/api/v1/auth/device/token`,
+            `${this.env.ARGUS_BRAIN_URL || "https://skopaq-brain-production.up.railway.app"}/api/v1/auth/device/token`,
             {
               method: "POST",
               headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -1934,7 +1934,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
               return {
                 content: [{
                   type: "text" as const,
-                  text: `## Waiting for Authorization\n\nPlease complete sign-in at the Argus website, then run \`argus_auth_complete\` again.\n\n**Your code:** \`${pendingAuth.user_code}\``,
+                  text: `## Waiting for Authorization\n\nPlease complete sign-in at the Skopaq website, then run \`argus_auth_complete\` again.\n\n**Your code:** \`${pendingAuth.user_code}\``,
                 }],
               };
             }
@@ -1985,7 +1985,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
           return {
             content: [{
               type: "text" as const,
-              text: `## Authentication Successful!\n\nYou are now signed in to Argus.\n\n**You can now use:**\n- \`argus_projects\` - List your projects\n- \`argus_events\` - View production errors\n- \`argus_dashboard\` - Get project overview\n- And all other Argus tools!\n\n*Session expires in ${Math.floor((data.expires_in || 3600) / 60)} minutes*`,
+              text: `## Authentication Successful!\n\nYou are now signed in to Skopaq.\n\n**You can now use:**\n- \`argus_projects\` - List your projects\n- \`argus_events\` - View production errors\n- \`argus_dashboard\` - Get project overview\n- And all other Skopaq tools!\n\n*Session expires in ${Math.floor((data.expires_in || 3600) / 60)} minutes*`,
             }],
           };
         } catch (error) {
@@ -2003,7 +2003,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
     // Tool: argus_auth_status - Check authentication status
     this.server.tool(
       "argus_auth_status",
-      "Check your current authentication status with Argus.",
+      "Check your current authentication status with Skopaq.",
       {},
       async () => {
         try {
@@ -2013,7 +2013,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
             return {
               content: [{
                 type: "text" as const,
-                text: `## Not Authenticated\n\nYou are not currently signed in to Argus.\n\nRun \`argus_auth\` to sign in and access protected features.`,
+                text: `## Not Authenticated\n\nYou are not currently signed in to Skopaq.\n\nRun \`argus_auth\` to sign in and access protected features.`,
               }],
             };
           }
@@ -2027,7 +2027,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
           return {
             content: [{
               type: "text" as const,
-              text: `## Authenticated\n\nYou are signed in to Argus.\n\n**Session info:**\n- User ID: \`${auth.user_id || "Unknown"}\`\n- Expires in: ${remainingTime} minutes\n\n**Available features:**\n- Projects, Events, Tests, Dashboard\n- Quality Intelligence, Risk Scores\n- Self-Healing, Collaboration tools`,
+              text: `## Authenticated\n\nYou are signed in to Skopaq.\n\n**Session info:**\n- User ID: \`${auth.user_id || "Unknown"}\`\n- Expires in: ${remainingTime} minutes\n\n**Available features:**\n- Projects, Events, Tests, Dashboard\n- Quality Intelligence, Risk Scores\n- Self-Healing, Collaboration tools`,
             }],
           };
         } catch (error) {
@@ -2042,10 +2042,10 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
       }
     );
 
-    // Tool: argus_auth_logout - Sign out from Argus
+    // Tool: argus_auth_logout - Sign out from Skopaq
     this.server.tool(
       "argus_auth_logout",
-      "Sign out from Argus and clear stored credentials.",
+      "Sign out from Skopaq and clear stored credentials.",
       {},
       async () => {
         try {
@@ -2056,7 +2056,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
           return {
             content: [{
               type: "text" as const,
-              text: `## Signed Out\n\nYou have been signed out from Argus.\n\nRun \`argus_auth\` to sign in again.`,
+              text: `## Signed Out\n\nYou have been signed out from Skopaq.\n\nRun \`argus_auth\` to sign in again.`,
             }],
           };
         } catch (error) {
@@ -2075,14 +2075,14 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
     // CORE TOOLS - Health and basic operations
     // =========================================================================
 
-    // Tool: argus_health - Check Argus API status
+    // Tool: argus_health - Check Skopaq API status
     this.server.tool(
       "argus_health",
-      "Check the health and status of the Argus E2E testing API",
+      "Check the health and status of the Skopaq E2E testing API",
       {},
       async () => {
         try {
-          const apiUrl = this.env.ARGUS_API_URL || "https://argus-api.samuelvinay-kumar.workers.dev";
+          const apiUrl = this.env.ARGUS_API_URL || "https://skopaq-api.samuelvinay-kumar.workers.dev";
           const response = await fetch(`${apiUrl}/health`);
           const data = await response.json();
 
@@ -2110,7 +2110,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
       },
       async ({ url, instruction }) => {
         try {
-          const result = await callArgusAPI<ArgusObserveResponse>("/observe", {
+          const result = await callSkopaqAPI<SkopaqObserveResponse>("/observe", {
             url,
             instruction: instruction || "What actions can I take on this page?",
           }, this.env);
@@ -2173,7 +2173,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
         try {
           const sessionId = generateSessionId();
 
-          const result = await callArgusAPI<ArgusActResponse>("/act", {
+          const result = await callSkopaqAPI<SkopaqActResponse>("/act", {
             url,
             instruction,
             selfHeal,
@@ -2265,7 +2265,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
         try {
           const sessionId = generateSessionId();
 
-          const result = await callArgusAPI<ArgusTestResponse>("/test", {
+          const result = await callSkopaqAPI<SkopaqTestResponse>("/test", {
             url,
             steps,
             browser,
@@ -2385,7 +2385,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
       },
       async ({ url, instruction, schema }) => {
         try {
-          const result = await callArgusAPI<ArgusExtractResponse>("/extract", {
+          const result = await callSkopaqAPI<SkopaqExtractResponse>("/extract", {
             url,
             instruction,
             schema: schema || {},
@@ -2433,7 +2433,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
         try {
           const sessionId = generateSessionId();
 
-          const result = await callArgusAPI<ArgusAgentResponse>("/agent", {
+          const result = await callSkopaqAPI<SkopaqAgentResponse>("/agent", {
             url,
             instruction,
             maxSteps,
@@ -2571,7 +2571,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
         } catch (error) {
           // Fall back to Worker-based discovery if Brain fails
           try {
-            const observeResult = await callArgusAPI<ArgusObserveResponse>("/observe", {
+            const observeResult = await callSkopaqAPI<SkopaqObserveResponse>("/observe", {
               url,
               instruction: "List all interactive elements and their purposes",
             }, this.env);
@@ -2741,10 +2741,10 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
     // SYNC TOOLS - Two-way IDE synchronization
     // =========================================================================
 
-    // Tool: argus_sync_push - Push local test changes to Argus
+    // Tool: argus_sync_push - Push local test changes to Skopaq
     this.server.tool(
       "argus_sync_push",
-      "Push local test changes to Argus cloud. Syncs test specifications from your IDE to the Argus platform for team collaboration and cloud execution.",
+      "Push local test changes to Skopaq cloud. Syncs test specifications from your IDE to the Skopaq platform for team collaboration and cloud execution.",
       {
         project_id: z.string().describe("The project UUID"),
         test_id: z.string().describe("The test UUID to push"),
@@ -2813,7 +2813,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
             content: [
               {
                 type: "text" as const,
-                text: `## Push Successful\n\n**Test:** ${test_id}\n**Events pushed:** ${result.events_pushed}\n**New version:** ${result.new_version || "N/A"}\n\nTest is now synced with Argus cloud.`,
+                text: `## Push Successful\n\n**Test:** ${test_id}\n**Events pushed:** ${result.events_pushed}\n**New version:** ${result.new_version || "N/A"}\n\nTest is now synced with Skopaq cloud.`,
               },
             ],
           };
@@ -2826,7 +2826,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
     // Tool: argus_sync_pull - Pull remote test changes
     this.server.tool(
       "argus_sync_pull",
-      "Pull test changes from Argus cloud to your local IDE. Fetches the latest test specifications and updates from team members.",
+      "Pull test changes from Skopaq cloud to your local IDE. Fetches the latest test specifications and updates from team members.",
       {
         project_id: z.string().describe("The project UUID to pull tests from"),
         since_version: z.number().optional().describe("Only pull changes since this version (default: 0 for all)"),
@@ -2865,7 +2865,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
               content: [
                 {
                   type: "text" as const,
-                  text: `## No New Changes\n\nYour local tests are up to date with Argus cloud.`,
+                  text: `## No New Changes\n\nYour local tests are up to date with Skopaq cloud.`,
                 },
               ],
             };
@@ -2998,7 +2998,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
     // Tool: argus_export - Export test to multiple languages
     this.server.tool(
       "argus_export",
-      "Export an Argus test to executable code in multiple programming languages and frameworks. Supports Python, TypeScript, Java, C#, Ruby, and Go with various testing frameworks.",
+      "Export an Skopaq test to executable code in multiple programming languages and frameworks. Supports Python, TypeScript, Java, C#, Ruby, and Go with various testing frameworks.",
       {
         test_id: z.string().describe("The test UUID to export"),
         language: z.enum(["python", "typescript", "java", "csharp", "ruby", "go"]).describe("Target programming language"),
@@ -3106,7 +3106,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
     // Tool: argus_recording_to_test - Convert browser recording to test
     this.server.tool(
       "argus_recording_to_test",
-      "Convert a browser recording (rrweb format) to an Argus test. Analyzes DOM events from recorded sessions and generates executable test steps. Zero AI cost - pure DOM event parsing.",
+      "Convert a browser recording (rrweb format) to an Skopaq test. Analyzes DOM events from recorded sessions and generates executable test steps. Zero AI cost - pure DOM event parsing.",
       {
         recording: z.object({
           events: z.array(z.object({
@@ -3192,7 +3192,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
         }).optional(),
       },
       async ({ project_id, options = {} }) => {
-        const snippet = `<!-- Argus Session Recorder -->
+        const snippet = `<!-- Skopaq Session Recorder -->
 <script src="https://cdn.jsdelivr.net/npm/rrweb@latest/dist/rrweb.min.js"></script>
 <script>
 (function() {
@@ -3215,7 +3215,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
   const uploadRecording = () => {
     if (events.length > 0) {
       navigator.sendBeacon(
-        ${JSON.stringify(`${this.env.ARGUS_BRAIN_URL || "https://argus-brain-production.up.railway.app"}/api/v1/recording/upload`)},
+        ${JSON.stringify(`${this.env.ARGUS_BRAIN_URL || "https://skopaq-brain-production.up.railway.app"}/api/v1/recording/upload`)},
         JSON.stringify({
           project_id: projectId,
           recording: { events, metadata: { url: window.location.href } }
@@ -3228,7 +3228,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
   setTimeout(uploadRecording, 300000); // 5 min max
 
   // Export for manual control
-  window.ArgusRecorder = {
+  window.SkopaqRecorder = {
     stop: uploadRecording,
     getEvents: () => events
   };
@@ -3239,7 +3239,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
           content: [
             {
               type: "text" as const,
-              text: `## Argus Recording Snippet\n\nAdd this snippet to your website to record user sessions:\n\n\`\`\`html\n${snippet}\n\`\`\`\n\n### Usage:\n1. Add the snippet before \`</body>\`\n2. User sessions are auto-recorded\n3. Use \`argus_recording_to_test\` to convert to tests\n\n### Manual Control:\n- \`window.ArgusRecorder.stop()\` - Stop and upload\n- \`window.ArgusRecorder.getEvents()\` - Get events array`,
+              text: `## Skopaq Recording Snippet\n\nAdd this snippet to your website to record user sessions:\n\n\`\`\`html\n${snippet}\n\`\`\`\n\n### Usage:\n1. Add the snippet before \`</body>\`\n2. User sessions are auto-recorded\n3. Use \`argus_recording_to_test\` to convert to tests\n\n### Manual Control:\n- \`window.SkopaqRecorder.stop()\` - Stop and upload\n- \`window.SkopaqRecorder.getEvents()\` - Get events array`,
             },
           ],
         };
@@ -3635,7 +3635,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
     // Tool: argus_healing_config - Get/update self-healing configuration
     this.server.tool(
       "argus_healing_config",
-      "View or update self-healing configuration. Control how Argus automatically fixes broken selectors, handles timeouts, and learns from patterns.",
+      "View or update self-healing configuration. Control how Skopaq automatically fixes broken selectors, handles timeouts, and learns from patterns.",
       {
         organization_id: z.string().describe("The organization UUID"),
         project_id: z.string().optional().describe("Project-specific config (optional)"),
@@ -3698,7 +3698,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
     // Tool: argus_healing_patterns - List learned healing patterns
     this.server.tool(
       "argus_healing_patterns",
-      "View learned self-healing patterns. These are selector fixes that Argus has learned from past test runs and can apply automatically.",
+      "View learned self-healing patterns. These are selector fixes that Skopaq has learned from past test runs and can apply automatically.",
       {
         organization_id: z.string().describe("The organization UUID"),
         project_id: z.string().optional().describe("Filter by project"),
@@ -3728,7 +3728,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
               content: [
                 {
                   type: "text" as const,
-                  text: `## Healing Patterns\n\nNo patterns learned yet. As tests run and selectors break, Argus will learn how to fix them automatically.\n\n**Tip:** Run tests with self-healing enabled to start building patterns.`,
+                  text: `## Healing Patterns\n\nNo patterns learned yet. As tests run and selectors break, Skopaq will learn how to fix them automatically.\n\n**Tip:** Run tests with self-healing enabled to start building patterns.`,
                 },
               ],
             };
@@ -3868,7 +3868,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
               content: [
                 {
                   type: "text" as const,
-                  text: `## Projects\n\nNo projects found. Create a project in the Argus dashboard to get started.\n\n**Tip:** Each project typically maps to one application or microservice.`,
+                  text: `## Projects\n\nNo projects found. Create a project in the Skopaq dashboard to get started.\n\n**Tip:** Each project typically maps to one application or microservice.`,
                 },
               ],
             };
@@ -4255,7 +4255,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
     // Tool: argus_ask - Conversational AI for testing questions (routes to backend AI chat)
     this.server.tool(
       "argus_ask",
-      "Ask any question about your tests, errors, or testing strategy. The AI will analyze your data and provide insights using the full Argus AI backend with multi-provider routing, Cognee semantic search, and conversation memory.",
+      "Ask any question about your tests, errors, or testing strategy. The AI will analyze your data and provide insights using the full Skopaq AI backend with multi-provider routing, Cognee semantic search, and conversation memory.",
       {
         question: z.string().describe("Your question about testing"),
         project_id: z.string().optional().describe("Project context (optional)"),
@@ -4367,7 +4367,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
           const scoreEmoji = scoreResult.quality_score >= 80 ? "🟢" : scoreResult.quality_score >= 50 ? "🟡" : "🔴";
           const riskEmoji = scoreResult.risk_level === "low" ? "🟢" : scoreResult.risk_level === "medium" ? "🟡" : "🔴";
 
-          let dashboard = `# Argus Dashboard 📊\n\n`;
+          let dashboard = `# Skopaq Dashboard 📊\n\n`;
           
           // Quality Score Section
           dashboard += `## Quality Score: ${scoreEmoji} ${scoreResult.quality_score}/100\n\n`;
@@ -5351,7 +5351,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
           output += `---\n`;
           output += `**Next Steps:**\n`;
           output += `- Use \`argus_api_run\` to execute these tests against your API\n`;
-          output += `- View and edit tests in the Argus dashboard\n`;
+          output += `- View and edit tests in the Skopaq dashboard\n`;
 
           return {
             content: [{ type: "text" as const, text: output }],
@@ -5486,7 +5486,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
 
           output += `---\n`;
           output += `**Actions:**\n`;
-          output += `- View detailed results in the Argus dashboard\n`;
+          output += `- View detailed results in the Skopaq dashboard\n`;
           output += `- Re-run failed tests with \`argus_api_run\` and specific test_ids\n`;
 
           return {
@@ -6546,7 +6546,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
 
           output += `\n---\n**Monitor progress:**\n`;
           output += `- \`argus_schedule_history("${schedule_id}")\` - View run results\n`;
-          output += `- Check the Argus dashboard for real-time updates`;
+          output += `- Check the Skopaq dashboard for real-time updates`;
 
           return {
             content: [{
@@ -7513,7 +7513,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
     // Tool: argus_project_create - Create a new project
     this.server.tool(
       "argus_project_create",
-      "Create a new Argus project to organize tests, events, and quality tracking.",
+      "Create a new Skopaq project to organize tests, events, and quality tracking.",
       {
         name: z.string().describe("Project name"),
         description: z.string().optional().describe("Project description"),
@@ -8364,7 +8364,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
     // Tool: argus_chat_message - Send chat message to AI assistant
     this.server.tool(
       "argus_chat_message",
-      "Send a message to the Argus AI chat assistant with full context awareness, tool use, and conversation memory.",
+      "Send a message to the Skopaq AI chat assistant with full context awareness, tool use, and conversation memory.",
       {
         message: z.string().describe("Your message"),
         thread_id: z.string().optional().describe("Thread ID for conversation continuity"),
@@ -8653,7 +8653,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
     this.server.resource(
       "projects",
       "argus://projects",
-      { description: "List of all Argus projects with their configuration and quality status" },
+      { description: "List of all Skopaq projects with their configuration and quality status" },
       async () => {
         try {
           const accessToken = await this.getAccessToken();
@@ -8743,7 +8743,7 @@ export class ArgusMcpAgentSQLite extends McpAgent<EnvWithKV> {
       "Generate a comprehensive E2E test plan for a URL or project, covering critical user flows, edge cases, and priority testing areas.",
       {
         url: z.string().optional().describe("Application URL to generate test plan for"),
-        project_id: z.string().optional().describe("Argus project UUID for context"),
+        project_id: z.string().optional().describe("Skopaq project UUID for context"),
         focus_areas: z.string().optional().describe("Comma-separated areas to focus on (e.g., 'auth, checkout, search')"),
       },
       async ({ url, project_id, focus_areas }) => {
@@ -8874,15 +8874,15 @@ export class MCPOAuth {
 }
 
 // Legacy class stub for migration (will be deleted in v6 migration)
-export class ArgusMcpAgent extends McpAgent<EnvWithKV> {
+export class SkopaqMcpAgent extends McpAgent<EnvWithKV> {
   server = new McpServer({
-    name: "Legacy Argus MCP Agent",
+    name: "Legacy Skopaq MCP Agent",
     version: "0.0.0",
   });
   async init() {}
 }
 
-// Export the Argus MCP Agent with Sentry error tracking
+// Export the Skopaq MCP Agent with Sentry error tracking
 export default Sentry.withSentry(
   (env: Env) => ({
     dsn: env.SENTRY_DSN,
@@ -8896,20 +8896,20 @@ export default Sentry.withSentry(
 
       // Handle the SSE endpoint for MCP (deprecated SSE protocol)
       if (url.pathname === "/sse" || url.pathname === "/sse/message") {
-      return ArgusMcpAgentSQLite.serveSSE("/sse").fetch(request, env, ctx);
+      return SkopaqMcpAgentSQLite.serveSSE("/sse").fetch(request, env, ctx);
     }
 
     // Handle the Streamable-HTTP endpoint for MCP (new protocol)
     if (url.pathname === "/mcp") {
-      return ArgusMcpAgentSQLite.serve("/mcp").fetch(request, env, ctx);
+      return SkopaqMcpAgentSQLite.serve("/mcp").fetch(request, env, ctx);
     }
 
     // Root endpoint - show info
     if (url.pathname === "/") {
       return Response.json({
-        name: "Argus MCP Server",
+        name: "Skopaq MCP Server",
         version: "3.0.0",
-        description: "Model Context Protocol server for Argus E2E Testing Agent - Full IDE Integration with Next-Gen AI Testing Intelligence",
+        description: "Model Context Protocol server for Skopaq E2E Testing Agent - Full IDE Integration with Next-Gen AI Testing Intelligence",
         endpoint: "/sse",
         tools: {
           authentication: [

@@ -1,10 +1,10 @@
-# Argus MCP Server - Standalone
+# Skopaq MCP Server - Standalone
 
-Self-hosted version of the Argus MCP Server for air-gap and enterprise deployments.
+Self-hosted version of the Skopaq MCP Server for air-gap and enterprise deployments.
 
 ## Overview
 
-This is a standalone Node.js version of the Argus MCP Server that can run in any environment without depending on Cloudflare Workers. It provides the same MCP (Model Context Protocol) capabilities for AI coding assistants.
+This is a standalone Node.js version of the Skopaq MCP Server that can run in any environment without depending on Cloudflare Workers. It provides the same MCP (Model Context Protocol) capabilities for AI coding assistants.
 
 **Key Features:**
 - Full MCP protocol support (SSE transport)
@@ -48,7 +48,7 @@ npm start
 |----------|---------|-------------|
 | `PORT` | `3000` | Server port |
 | `HOST` | `0.0.0.0` | Server host |
-| `ARGUS_BRAIN_URL` | `http://localhost:8000` | Argus Brain API URL |
+| `ARGUS_BRAIN_URL` | `http://localhost:8000` | Skopaq Brain API URL |
 | `API_TOKEN` | - | API token for Brain authentication |
 | `STORAGE_PROVIDER` | `minio` | Storage backend: `minio`, `s3`, `local` |
 | `MINIO_ENDPOINT` | `localhost:9000` | MinIO/S3 endpoint |
@@ -94,7 +94,7 @@ http://localhost:3000/sse
 
 | Tool | Description |
 |------|-------------|
-| `argus_health` | Check Argus API health |
+| `argus_health` | Check Skopaq API health |
 | `argus_discover` | Discover page elements |
 | `argus_act` | Execute browser actions |
 | `argus_test` | Run E2E tests |
@@ -112,7 +112,7 @@ http://localhost:3000/sse
                        │ MCP Protocol (SSE)
                        ▼
 ┌─────────────────────────────────────────────────────────┐
-│              Argus MCP Server (Standalone)              │
+│              Skopaq MCP Server (Standalone)              │
 │                                                          │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │
 │  │   Express   │  │   Storage   │  │   Session   │     │
@@ -123,7 +123,7 @@ http://localhost:3000/sse
           │                 │                 │
           ▼                 ▼                 ▼
 ┌─────────────────┐  ┌─────────────┐  ┌─────────────┐
-│  Argus Brain    │  │    MinIO    │  │    Redis    │
+│  Skopaq Brain    │  │    MinIO    │  │    Redis    │
 │  (FastAPI)      │  │   Bucket    │  │   Session   │
 └─────────────────┘  └─────────────┘  └─────────────┘
 ```
@@ -169,4 +169,4 @@ Response:
 
 ## License
 
-MIT - Argus E2E Testing Agent
+MIT - Skopaq E2E Testing Agent

@@ -1,9 +1,9 @@
-# Argus MCP Server
+# Skopaq MCP Server
 
 [![Release](https://img.shields.io/github/v/release/RaphaEnterprises-AI/argus-mcp-server)](https://github.com/RaphaEnterprises-AI/argus-mcp-server/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Model Context Protocol (MCP) server for Argus E2E Testing Agent. This allows AI coding assistants to interact with Argus testing capabilities directly from your IDE.
+Model Context Protocol (MCP) server for Skopaq E2E Testing Agent. This allows AI coding assistants to interact with Skopaq testing capabilities directly from your IDE.
 
 ## Supported AI IDEs
 
@@ -28,7 +28,7 @@ Model Context Protocol (MCP) server for Argus E2E Testing Agent. This allows AI 
 
 | Tool | Description |
 |------|-------------|
-| `argus_health` | Check Argus API status |
+| `argus_health` | Check Skopaq API status |
 | `argus_discover` | Discover interactive elements on a page |
 | `argus_act` | Execute browser actions (click, type, navigate) |
 | `argus_test` | Run multi-step E2E tests with screenshots |
@@ -300,7 +300,7 @@ npm run deploy
                           │ MCP Protocol (SSE)
                           ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                   Argus MCP Server                           │
+│                   Skopaq MCP Server                           │
 │              (Cloudflare Workers + Durable Objects)          │
 │                                                              │
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐       │
@@ -313,7 +313,7 @@ npm run deploy
                           │ REST API
                           ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                     Argus Backend                            │
+│                     Skopaq Backend                            │
 │                                                              │
 │  ┌────────────┐  ┌────────────┐  ┌────────────┐            │
 │  │ Browser    │  │ AI Brain   │  │ Knowledge  │            │
