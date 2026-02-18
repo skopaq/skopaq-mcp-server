@@ -29,7 +29,7 @@ BROWSER_POOL_URL = "http://65.20.72.251.nip.io"
 # Worker URL - Fallback browser automation (Cloudflare Browser Rendering)
 ARGUS_API_URL = "https://skopaq-api.samuelvinay-kumar.workers.dev"
 # Brain URL - Intelligence (test planning, quality, webhooks)
-ARGUS_BRAIN_URL = "https://skopaq-brain-production.up.railway.app"
+ARGUS_BRAIN_URL = "https://argus-brain-production.up.railway.app"
 
 # Secrets (set via `wrangler secret put <NAME>`):
 # - API_TOKEN (for authenticating with Skopaq API)
@@ -89,3 +89,8 @@ deleted_classes = ["SkopaqMcpAgent"]
 [[migrations]]
 tag = "v7"
 new_sqlite_classes = ["SkopaqMcpAgentSQLite"]
+
+[[migrations]]
+tag = "v8"
+renamed_classes = [{from = "ArgusMcpAgentSQLite", to = "SkopaqMcpAgentSQLite"}]
+deleted_classes = ["ArgusMcpAgent"]

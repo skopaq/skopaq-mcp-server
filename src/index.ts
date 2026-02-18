@@ -1480,7 +1480,7 @@ async function callBrainAPI<T>(
   accessToken?: string,
   maxRetries: number = 3,
 ): Promise<T> {
-  const brainUrl = env?.ARGUS_BRAIN_URL || "https://skopaq-brain-production.up.railway.app";
+  const brainUrl = env?.ARGUS_BRAIN_URL || "https://argus-brain-production.up.railway.app";
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -1534,7 +1534,7 @@ async function registerMCPConnection(
   clientName?: string
 ): Promise<string | null> {
   try {
-    const brainUrl = env?.ARGUS_BRAIN_URL || "https://skopaq-brain-production.up.railway.app";
+    const brainUrl = env?.ARGUS_BRAIN_URL || "https://argus-brain-production.up.railway.app";
     const response = await fetch(`${brainUrl}/api/v1/mcp/connections/register`, {
       method: 'POST',
       headers: {
@@ -1805,7 +1805,7 @@ export class SkopaqMcpAgentSQLite extends McpAgent<EnvWithKV> {
         try {
           // Call Brain API to start device auth flow (uses form-urlencoded)
           const response = await fetch(
-            `${this.env.ARGUS_BRAIN_URL || "https://skopaq-brain-production.up.railway.app"}/api/v1/auth/device/authorize`,
+            `${this.env.ARGUS_BRAIN_URL || "https://argus-brain-production.up.railway.app"}/api/v1/auth/device/authorize`,
             {
               method: "POST",
               headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -1821,34 +1821,37 @@ export class SkopaqMcpAgentSQLite extends McpAgent<EnvWithKV> {
             throw new Error(`Failed to start auth: ${errorText}`);
           }
 
+          // Brain API returns camelCase keys (via CamelCaseMiddleware)
           const data = await response.json() as {
-            device_code: string;
-            user_code: string;
-            verification_uri: string;
-            verification_uri_complete: string;
-            expires_in: number;
+            deviceCode: string;
+            userCode: string;
+            verificationUri: string;
+            verificationUriComplete: string;
+            expiresIn: number;
           };
+
+          const expiresIn = data.expiresIn || 600;
 
           // Store pending auth in DO storage
           await this.ctx.storage.put("pending_auth", JSON.stringify({
-            device_code: data.device_code,
-            user_code: data.user_code,
-            expires_at: new Date(Date.now() + data.expires_in * 1000).toISOString(),
+            device_code: data.deviceCode,
+            user_code: data.userCode,
+            expires_at: new Date(Date.now() + expiresIn * 1000).toISOString(),
           }));
 
           // Also store in KV for cross-session access
           if (this.env.AUTH_STATE) {
-            await this.env.AUTH_STATE.put(`auth_${data.user_code}`, JSON.stringify({
-              device_code: data.device_code,
+            await this.env.AUTH_STATE.put(`auth_${data.userCode}`, JSON.stringify({
+              device_code: data.deviceCode,
               status: "pending",
               created_at: new Date().toISOString(),
-            }), { expirationTtl: data.expires_in });
+            }), { expirationTtl: expiresIn });
           }
 
           return {
             content: [{
               type: "text" as const,
-              text: `## Skopaq Authentication\n\n**Your verification code:** \`${data.user_code}\`\n\n**Steps to sign in:**\n1. Open this URL in your browser:\n   ${data.verification_uri_complete}\n\n2. Sign in with your Skopaq account\n\n3. Enter the code if prompted: \`${data.user_code}\`\n\n4. After signing in, run \`argus_auth_complete\` to finish\n\n*Code expires in ${Math.floor(data.expires_in / 60)} minutes*`,
+              text: `## Skopaq Authentication\n\n**Your verification code:** \`${data.userCode}\`\n\n**Steps to sign in:**\n1. Open this URL in your browser:\n   ${data.verificationUriComplete}\n\n2. Sign in with your Skopaq account\n\n3. Enter the code if prompted: \`${data.userCode}\`\n\n4. After signing in, run \`argus_auth_complete\` to finish\n\n*Code expires in ${Math.floor(expiresIn / 60)} minutes*`,
             }],
           };
         } catch (error) {
@@ -1909,7 +1912,7 @@ export class SkopaqMcpAgentSQLite extends McpAgent<EnvWithKV> {
 
           // Poll the token endpoint (uses form-urlencoded)
           const response = await fetch(
-            `${this.env.ARGUS_BRAIN_URL || "https://skopaq-brain-production.up.railway.app"}/api/v1/auth/device/token`,
+            `${this.env.ARGUS_BRAIN_URL || "https://argus-brain-production.up.railway.app"}/api/v1/auth/device/token`,
             {
               method: "POST",
               headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -1921,16 +1924,17 @@ export class SkopaqMcpAgentSQLite extends McpAgent<EnvWithKV> {
             }
           );
 
-          const data = await response.json() as {
-            access_token?: string;
-            expires_in?: number;
-            error?: string;
-            error_description?: string;
-            user_id?: string;
-          };
+          // Brain API returns camelCase keys (via CamelCaseMiddleware)
+          // Error responses from FastAPI are wrapped in {"detail": {"error": "...", ...}}
+          const rawData = await response.json() as Record<string, unknown>;
 
-          if (data.error) {
-            if (data.error === "authorization_pending") {
+          // Extract error from FastAPI's HTTPException detail wrapper
+          const detail = rawData.detail as Record<string, string> | undefined;
+          const errorCode = detail?.error || (rawData.error as string | undefined);
+          const errorDesc = detail?.errorDescription || (rawData.errorDescription as string | undefined);
+
+          if (errorCode) {
+            if (errorCode === "authorization_pending") {
               return {
                 content: [{
                   type: "text" as const,
@@ -1938,18 +1942,23 @@ export class SkopaqMcpAgentSQLite extends McpAgent<EnvWithKV> {
                 }],
               };
             }
-            throw new Error(data.error_description || data.error);
+            throw new Error(errorDesc || errorCode);
           }
 
-          if (!data.access_token) {
+          // Successful token response uses camelCase
+          const accessToken = rawData.accessToken as string | undefined;
+          const expiresIn = (rawData.expiresIn as number) || 3600;
+          const userId = rawData.userId as string | undefined;
+
+          if (!accessToken) {
             throw new Error("No access token received");
           }
 
           // Store the auth tokens in DO storage
           const authData = {
-            access_token: data.access_token,
-            expires_at: new Date(Date.now() + (data.expires_in || 3600) * 1000).toISOString(),
-            user_id: data.user_id,
+            access_token: accessToken,
+            expires_at: new Date(Date.now() + expiresIn * 1000).toISOString(),
+            user_id: userId,
           };
           await this.ctx.storage.put("auth", JSON.stringify(authData));
 
@@ -1958,7 +1967,7 @@ export class SkopaqMcpAgentSQLite extends McpAgent<EnvWithKV> {
             await this.env.AUTH_STATE.put(`auth_${pendingAuth.user_code}`, JSON.stringify({
               ...authData,
               status: "completed",
-            }), { expirationTtl: data.expires_in || 3600 });
+            }), { expirationTtl: expiresIn });
           }
 
           // Clear pending auth
@@ -1968,7 +1977,7 @@ export class SkopaqMcpAgentSQLite extends McpAgent<EnvWithKV> {
           const sessionId = generateSessionId();
           const connectionId = await registerMCPConnection(
             this.env,
-            data.access_token,
+            accessToken,
             sessionId,
             'Claude Code MCP'
           );
@@ -1985,7 +1994,7 @@ export class SkopaqMcpAgentSQLite extends McpAgent<EnvWithKV> {
           return {
             content: [{
               type: "text" as const,
-              text: `## Authentication Successful!\n\nYou are now signed in to Skopaq.\n\n**You can now use:**\n- \`argus_projects\` - List your projects\n- \`argus_events\` - View production errors\n- \`argus_dashboard\` - Get project overview\n- And all other Skopaq tools!\n\n*Session expires in ${Math.floor((data.expires_in || 3600) / 60)} minutes*`,
+              text: `## Authentication Successful!\n\nYou are now signed in to Skopaq.\n\n**You can now use:**\n- \`argus_projects\` - List your projects\n- \`argus_events\` - View production errors\n- \`argus_dashboard\` - Get project overview\n- And all other Skopaq tools!\n\n*Session expires in ${Math.floor(expiresIn / 60)} minutes*`,
             }],
           };
         } catch (error) {
@@ -3215,7 +3224,7 @@ export class SkopaqMcpAgentSQLite extends McpAgent<EnvWithKV> {
   const uploadRecording = () => {
     if (events.length > 0) {
       navigator.sendBeacon(
-        ${JSON.stringify(`${this.env.ARGUS_BRAIN_URL || "https://skopaq-brain-production.up.railway.app"}/api/v1/recording/upload`)},
+        ${JSON.stringify(`${this.env.ARGUS_BRAIN_URL || "https://argus-brain-production.up.railway.app"}/api/v1/recording/upload`)},
         JSON.stringify({
           project_id: projectId,
           recording: { events, metadata: { url: window.location.href } }
